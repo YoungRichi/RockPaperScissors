@@ -62,17 +62,17 @@ public class GameScript : MonoBehaviour
         if (aiChoose == 1)
         {
              var choice = Instantiate(rock);
-             Destroy(choice, 5.0f);
+             Destroy(choice, 2.0f);
         }
         else if (aiChoose == 2)
         {
             var choice = Instantiate(scissors);
-            Destroy(choice, 5.0f);
+            Destroy(choice, 2.0f);
         }
         else if (aiChoose == 3)
         {
             var choice = Instantiate(paper);
-            Destroy(choice, 5.0f);
+            Destroy(choice, 2.0f);
         }
         
     }
