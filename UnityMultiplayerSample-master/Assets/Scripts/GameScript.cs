@@ -15,6 +15,9 @@ public class GameScript : MonoBehaviour
     [SerializeField] GameObject scissors;
     [SerializeField] GameObject paper;
 
+    [SerializeField] Transform player;
+    [SerializeField] Transform ai;
+ 
     [SerializeField] GameObject text;
 
     int playerChoose = 0;
@@ -42,14 +45,23 @@ public class GameScript : MonoBehaviour
     {
         playerChoose = choose;
         playersTurn = false;
-        if(playerChoose == 1)
-            Debug.Log("Player: Rock");
+        if (playerChoose == 1)
+        {
+            var choice = Instantiate(rock, player);
+            Destroy(choice, 2.0f);
+        }
 
         else if (playerChoose == 2)
-            Debug.Log("Player: Scissors");
+        {
+            var choice = Instantiate(scissors, player);
+            Destroy(choice, 2.0f);
+        }
 
         else if (playerChoose == 3)
-            Debug.Log("Player: Paper");
+        {
+            var choice = Instantiate(paper, player);
+            Destroy(choice, 2.0f);
+        }
 
     }
 
@@ -61,22 +73,21 @@ public class GameScript : MonoBehaviour
 
         if (aiChoose == 1)
         {
-             var choice = Instantiate(rock);
+             var choice = Instantiate(rock, ai);
              Destroy(choice, 2.0f);
         }
         else if (aiChoose == 2)
         {
-            var choice = Instantiate(scissors);
+            var choice = Instantiate(scissors, ai);
             Destroy(choice, 2.0f);
         }
         else if (aiChoose == 3)
         {
-            var choice = Instantiate(paper);
+            var choice = Instantiate(paper, ai);
             Destroy(choice, 2.0f);
         }
         
     }
-
     
 
     void ChooseWinner()
