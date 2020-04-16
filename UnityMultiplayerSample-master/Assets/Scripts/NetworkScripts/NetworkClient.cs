@@ -22,6 +22,7 @@ public class NetworkClient : MonoBehaviour
 
     public void OnDestroy()
     {
+        m_Connection.Disconnect(m_Driver);
         m_Driver.Dispose();
     }
 
@@ -35,7 +36,7 @@ public class NetworkClient : MonoBehaviour
                 Debug.Log("Something went wrong during connect");
             return;
         }
-
+        
         DataStreamReader stream;
         NetworkEvent.Type cmd;
 
@@ -44,28 +45,37 @@ public class NetworkClient : MonoBehaviour
         {
             if (cmd == NetworkEvent.Type.Connect)
             {
-                Debug.Log("We are now connected to the server");
 
-                var value = 1;
-                using (var writer = new DataStreamWriter(4, Allocator.Temp))
-                {
-                    writer.Write(value);
-                    m_Connection.Send(m_Driver, writer);
-                }
+                Debug.Log("We are now connected to the server");
+                //Debug.Log("We are now connected to the server");
+
+                //var value = 1;
+                //using (var writer = new DataStreamWriter(4, Allocator.Temp))
+                //{
+                //    writer.Write(value);
+                //    m_Connection.Send(m_Driver, writer);
+                //}
             }
             else if (cmd == NetworkEvent.Type.Data)
             {
                 var readerCtx = default(DataStreamReader.Context);
                 uint value = stream.ReadUInt(ref readerCtx);
                 Debug.Log("Got the value = " + value + " back from the server");
-                m_Done = true;
-                m_Connection.Disconnect(m_Driver);
-                m_Connection = default(NetworkConnection);
             }
             else if (cmd == NetworkEvent.Type.Disconnect)
             {
                 Debug.Log("Client got disconnected from server");
                 m_Connection = default(NetworkConnection);
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            var value = 1;
+            using (var writer = new DataStreamWriter(4, Allocator.Temp))
+            {
+                writer.Write(value);
+                m_Connection.Send(m_Driver, writer);
             }
         }
     }
