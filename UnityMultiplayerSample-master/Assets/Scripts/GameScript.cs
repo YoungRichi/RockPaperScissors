@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-enum States
+public enum States
 {
     Rock = 1,
     Scissors = 2,
@@ -29,8 +29,8 @@ public class GameScript : MonoBehaviour
     int aiChoose = 0;
 
     bool playersTurn = true;
-    
 
+    NetworkClient client;
 
     // Update is called once per frame
     void Update()
@@ -68,7 +68,28 @@ public class GameScript : MonoBehaviour
         }
         
     }
+
+    public void RockButton()
+    {
+        client.SelectFigure(States.Rock);
+    }
+
+    public void PaperButton()
+    {
+        client.SelectFigure(States.Paper);
+    }
+
+    public void ScissorsButton()
+    {
+        client.SelectFigure(States.Scissors);
+    }
     
+    public void OpponentTurn(States state)
+    {
+        // Process
+        //Check what opponent sent
+        //Bot process
+    }
 
     void ChooseWinner()
     {
