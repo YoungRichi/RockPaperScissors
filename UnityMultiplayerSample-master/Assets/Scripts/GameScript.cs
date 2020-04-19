@@ -29,8 +29,10 @@ public class GameScript : MonoBehaviour
     int aiChoose = 0;
 
     bool playersTurn = true;
+    int oppValue = 0;
+    int playerValue = 0;
 
-    NetworkClient client;
+    [SerializeField] NetworkClient client;
 
     // Update is called once per frame
     void Update()
@@ -40,7 +42,7 @@ public class GameScript : MonoBehaviour
 
         else
         {
-            GenerateAISelection();
+            //GenerateAISelection();
             ChooseWinner();
         }
     }
@@ -69,6 +71,11 @@ public class GameScript : MonoBehaviour
         
     }
 
+    public void ConnectToGame()
+    {
+        client.Connect();
+    }
+
     public void RockButton()
     {
         client.SelectFigure(States.Rock);
@@ -86,9 +93,24 @@ public class GameScript : MonoBehaviour
     
     public void OpponentTurn(States state)
     {
-        // Process
-        //Check what opponent sent
-        //Bot process
+        if (state == States.Rock)
+        {
+            oppValue = 1;
+            var choice = Instantiate(rock, ai);
+            Destroy(choice, 2.0f);
+        }
+        else if (state == States.Scissors)
+        {
+            oppValue = 2;
+            var choice = Instantiate(scissors, ai);
+            Destroy(choice, 2.0f);
+        }
+        else if (state == States.Paper)
+        {
+            oppValue = 3;
+            var choice = Instantiate(paper, ai);
+            Destroy(choice, 2.0f);
+        }
     }
 
     void ChooseWinner()
@@ -103,43 +125,43 @@ public class GameScript : MonoBehaviour
 
 
         //Activates win/lose text based on win/lose condition
-        if (playerChoose == aiChoose)
+        if (playerChoose == oppValue)
         {
             //draw
             aiDrawTxt.SetActive(true);
             playerDrawTxt.SetActive(true);
         }
-        else if (playerChoose == (int)States.Paper && aiChoose == (int)States.Rock)
+        else if (playerChoose == (int)States.Paper && oppValue == (int)States.Rock)
         {
             //player won
             aiLoseTxt.SetActive(true);
             playerWinTxt.SetActive(true);
         }
-        else if (playerChoose == (int)States.Paper && aiChoose == (int)States.Scissors)
+        else if (playerChoose == (int)States.Paper && oppValue == (int)States.Scissors)
         {
             //ai won
             aiWinTxt.SetActive(true);
             playerLoseTxt.SetActive(true);
         }
-        else if (playerChoose == (int)States.Rock && aiChoose == (int)States.Scissors)
+        else if (playerChoose == (int)States.Rock && oppValue == (int)States.Scissors)
         {
             //player won
             aiLoseTxt.SetActive(true);
             playerWinTxt.SetActive(true);
         }
-        else if (playerChoose == (int)States.Rock && aiChoose == (int)States.Paper)
+        else if (playerChoose == (int)States.Rock && oppValue == (int)States.Paper)
         {
             //ai won
             aiWinTxt.SetActive(true);
             playerLoseTxt.SetActive(true);
         }
-        else if (playerChoose == (int)States.Scissors && aiChoose == (int)States.Rock)
+        else if (playerChoose == (int)States.Scissors && oppValue == (int)States.Rock)
         {
             //ai won
             aiWinTxt.SetActive(true);
             playerLoseTxt.SetActive(true);
         }
-        else if (playerChoose == (int)States.Scissors && aiChoose == (int)States.Paper)
+        else if (playerChoose == (int)States.Scissors && oppValue == (int)States.Paper)
         {
             //player won
             aiLoseTxt.SetActive(true);

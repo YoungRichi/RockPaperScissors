@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Networking.Transport;
 using System;
 
+//Game States 
 public enum ClientState
 {
     Connect,
@@ -28,14 +29,22 @@ public class NetworkClient : MonoBehaviour
     ClientState state = ClientState.Connect;
     public string ErrorMessage { get; private set; }
 
+    //Select figure calls when figure button is clicked 
     public void SelectFigure(States figure)
     {
         this.figure = figure;
     }
 
-    public bool Connect(ushort port, string address)
+    public void ContinueGame(bool continueGame)
     {
-        var endpoint = NetworkEndPoint.Parse(address, port);
+        this.continueGame = continueGame;
+    }
+
+    //Connection to the driver 
+    public bool Connect(ushort port = 9000, string address = "localhost")
+    {
+        var endpoint = NetworkEndPoint.LoopbackIpv4;
+        endpoint.Port = 9000;//NetworkEndPoint.Parse(address, port);
         m_Connection = m_Driver.Connect(endpoint);
         if (!m_Connection.IsCreated)
             ErrorMessage = "Bad Gateway - Failed to connect to server.";
@@ -48,6 +57,7 @@ public class NetworkClient : MonoBehaviour
     {
         m_Driver = new UdpNetworkDriver(new INetworkParameter[0]);
         m_Connection = default(NetworkConnection);
+        
 
         //var endpoint = NetworkEndPoint.Parse("52.15.219.197",12345);
         //var endpoint = NetworkEndPoint.LoopbackIpv4;
@@ -55,9 +65,11 @@ public class NetworkClient : MonoBehaviour
         //m_Connection = m_Driver.Connect(endpoint);
     }
 
+    //OnDeestroy sicsonnect driver and dispose it 
     public void OnDestroy()
     {
-        m_Connection.Disconnect(m_Driver);
+        if(m_Connection.IsCreated)
+            m_Connection.Disconnect(m_Driver);
         m_Driver.Dispose();
     }
 
@@ -68,6 +80,7 @@ public class NetworkClient : MonoBehaviour
         if (!m_Connection.IsCreated)
             return;
 
+        //If connection was created then :
         switch(state)
         {
             case ClientState.Connect:
@@ -133,20 +146,21 @@ public class NetworkClient : MonoBehaviour
     }
 
     private void Disconnect()
-    {
+    {   //Disconnect driver, reset connection, change state to 'Connect' 
         m_Connection.Disconnect(m_Driver);
         m_Connection = default(NetworkConnection);
         state = ClientState.Connect;
     }
 
+    //?
     private void GameContinue()
     {
         DataStreamReader stream;
         NetworkEvent.Type cmd;
         if ((cmd = m_Connection.PopEvent(m_Driver, out stream)) != NetworkEvent.Type.Empty)
-        {
+        {   //Pop an event from driver 
             if (cmd == NetworkEvent.Type.Disconnect)
-            {
+            {   //If event 'Disconnect' then reset connection 
                 Debug.Log("Client got disconnected from server");
                 m_Connection = default(NetworkConnection);
             }
@@ -160,9 +174,9 @@ public class NetworkClient : MonoBehaviour
             
 
         if (continueGame != null)
-        {
+        {   //Instantiate writer 
             using (var writer = new DataStreamWriter(4, Allocator.Temp))
-            {
+            {   //Compare if value from client is  1 - change ClientState to waitingList and send value to server, else disconnect client, reset figure and game bool
                 int value = continueGame.Value ? 1 : 0;
                 writer.Write(value);
                 m_Connection.Send(m_Driver, writer);
@@ -183,9 +197,9 @@ public class NetworkClient : MonoBehaviour
         DataStreamReader stream;
         NetworkEvent.Type cmd;
         if ((cmd = m_Connection.PopEvent(m_Driver, out stream)) != NetworkEvent.Type.Empty)
-        {
+        {   //Pop event from driver 
             if (cmd == NetworkEvent.Type.Data)
-            {
+            {   //If event 'Data' - instantiate reader, save data to value, call OpponentTurn(), and move client to 'GameContinue' state 
                 var readerCtx = default(DataStreamReader.Context);
                 uint value = stream.ReadUInt(ref readerCtx);
                 Debug.Log("Server received a value " + value);
@@ -205,7 +219,7 @@ public class NetworkClient : MonoBehaviour
         DataStreamReader stream;
         NetworkEvent.Type cmd;
         if ((cmd = m_Connection.PopEvent(m_Driver, out stream)) != NetworkEvent.Type.Empty)
-        {
+        {   //Pop event from driver, check if message was valid or 'Disconnect' 
             if (cmd == NetworkEvent.Type.Disconnect)
             {
                 Debug.Log("Client got disconnected from server");
@@ -221,9 +235,9 @@ public class NetworkClient : MonoBehaviour
         }
 
         if (figure != null)
-        {
+        {   //If figure was selected - instantiate writer 
             using (var writer = new DataStreamWriter(4, Allocator.Temp))
-            {
+            {   //Save figure value to value, send it to server, move Client to GameWaitingForOpp state 
                 int value = (int)figure.Value;
                 writer.Write(value);
                 m_Connection.Send(m_Driver, writer);
@@ -237,7 +251,7 @@ public class NetworkClient : MonoBehaviour
         DataStreamReader stream;
         NetworkEvent.Type cmd;
         if ((cmd = m_Connection.PopEvent(m_Driver, out stream)) != NetworkEvent.Type.Empty)
-        {
+        {   //Pop event from driver, if event 'Data' - instantiate reader, save data to gameId and move client to 'GameSelect' state 
             if (cmd == NetworkEvent.Type.Data)
             {
                 var readerCtx = default(DataStreamReader.Context);
@@ -253,24 +267,25 @@ public class NetworkClient : MonoBehaviour
         }
     }
 
+    //Pop an event from driver
     private void ConnectionStateProcess()
     {
         DataStreamReader stream;
         NetworkEvent.Type cmd;
         if ((cmd = m_Connection.PopEvent(m_Driver, out stream)) != NetworkEvent.Type.Empty)
-        {
+        {   //If event 'Connect'
             if (cmd == NetworkEvent.Type.Connect)
-            {
+            {   //Changes game state to waiting list 
                 Debug.Log("We are now connected to the server"); // Move message to GameEvents Log
                 state = ClientState.WaitingList;
             }
             else if (cmd == NetworkEvent.Type.Disconnect)
-            {
+            {   //If event 'Disconnect' then reset connection 
                 Debug.Log("Client got disconnected from server");
                 m_Connection = default(NetworkConnection);
             }
             else
-            {
+            {   //Else disconnect driver and reset connection 
                 ErrorMessage = "Bad message from server!";
                 m_Connection.Disconnect(m_Driver);
                 m_Connection = default(NetworkConnection);

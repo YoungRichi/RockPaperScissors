@@ -23,9 +23,9 @@ public class NetworkServer : MonoBehaviour
 
         m_Driver = new UdpNetworkDriver(new INetworkParameter[0]);
         var endpoint = NetworkEndPoint.AnyIpv4;
-        endpoint.Port = 12345;
+        endpoint.Port = 9000;
         if (m_Driver.Bind(endpoint) != 0)
-            Debug.Log("Failed to bind to port 12345");
+            Debug.Log("Failed to bind to port 9000");
         else
             m_Driver.Listen();
 
@@ -122,7 +122,7 @@ public class NetworkServer : MonoBehaviour
     }
 
     private void CheckActiveGames()
-    {
+    {   //For each game in active games 
         for(int i = 0; i < games.Count; ++i)
         {
             if(!games[i].IsActive)
