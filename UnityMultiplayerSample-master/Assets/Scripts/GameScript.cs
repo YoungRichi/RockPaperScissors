@@ -79,16 +79,22 @@ public class GameScript : MonoBehaviour
     public void RockButton()
     {
         client.SelectFigure(States.Rock);
+        var choice = Instantiate(rock, player);
+        Destroy(choice, 2.0f);
     }
 
     public void PaperButton()
     {
         client.SelectFigure(States.Paper);
+        var choice = Instantiate(paper, player);
+        Destroy(choice, 2.0f);
     }
 
     public void ScissorsButton()
     {
         client.SelectFigure(States.Scissors);
+        var choice = Instantiate(scissors, player);
+        Destroy(choice, 2.0f);
     }
     
     public void OpponentTurn(States state)
