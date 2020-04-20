@@ -40,11 +40,11 @@ public class GameScript : MonoBehaviour
         if (playersTurn && playerChoose <= 0)
             return;
 
-        else
-        {
-            //GenerateAISelection();
-            ChooseWinner();
-        }
+        //else
+        //{
+        //    //GenerateAISelection();
+        //    ChooseWinner();
+        //}
     }
 
     void GenerateAISelection()
@@ -78,6 +78,7 @@ public class GameScript : MonoBehaviour
 
     public void RockButton()
     {
+        playerChoose = 1;
         client.SelectFigure(States.Rock);
         var choice = Instantiate(rock, player);
         Destroy(choice, 2.0f);
@@ -85,6 +86,7 @@ public class GameScript : MonoBehaviour
 
     public void PaperButton()
     {
+        playerChoose = 3;
         client.SelectFigure(States.Paper);
         var choice = Instantiate(paper, player);
         Destroy(choice, 2.0f);
@@ -92,6 +94,7 @@ public class GameScript : MonoBehaviour
 
     public void ScissorsButton()
     {
+        playerChoose = 2;
         client.SelectFigure(States.Scissors);
         var choice = Instantiate(scissors, player);
         Destroy(choice, 2.0f);
@@ -174,6 +177,7 @@ public class GameScript : MonoBehaviour
             playerWinTxt.SetActive(true);
         }
         playerChoose = 0;
+        oppValue = 0;
         playersTurn = true;
     }
 
